@@ -9,7 +9,7 @@
 class DSString{
 
     private:
-        char *data; // a pointer to a character array containing the string with a `\0` terminator
+        char* data; // a pointer to a character array containing the string with a `\0` terminator
         size_t len; // the length of the string (without the terminator)
     // Note: we keep the terminator only so we can return a c-string version in function c_str().
 
@@ -20,10 +20,9 @@ class DSString{
      **/
 
         DSString();
-        DSString(const char *); // constructor that converts a cstring
-    // you can also provide  DSString(const std::string &); for std::string
+        DSString(const char* value); // ADDED: constructor that converts a cstring
 
-    // Rule of three is needed if dynamic memory allocation is used
+        // Rule of three is needed if dynamic memory allocation is used
         DSString(const DSString &);            // copy constructor
         DSString &operator=(const DSString &); // copy assignment operator
         ~DSString();                           // destructor
@@ -86,3 +85,18 @@ class DSString{
     // substring within a string or a function that breaks a string into words.
     // You will need a split or tokenize function.
 };
+
+DSString::DSString(){
+
+}
+
+DSString::DSString(const char* value){
+    if(value==nullptr){
+        len = 0;
+        data = (char*)calloc(1, sizeof(char));
+        return;
+    }
+
+    len = strlen(value);
+    data = (char*)malloc(len + 1);
+}
