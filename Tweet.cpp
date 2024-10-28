@@ -4,6 +4,7 @@ using namespace std;
 
 class Tweet{
     private:
+    public:
         string date;
         string query; 
         string user;
@@ -11,13 +12,19 @@ class Tweet{
         string text; //holds text of tweet
         int sentiment_score; //holds score recorded for the tweet
         string sentiment_class; 
-    public:
+        
         Tweet(int sentiment_score, int id, string date, string query, string user, string text){
             this->date = date;
             this->query = query;
             this->id = id;
             this->text = text;
             this->sentiment_score = sentiment_score;
+            if(sentiment_score==4){
+                this->sentiment_class="Positive";
+            }
+            else{
+                this->sentiment_class="Negative";
+            }
         }
 
         void setTweet(string text){
@@ -30,15 +37,6 @@ class Tweet{
 
         int getSentimentScore(){
             return sentiment_score;
-        }
-
-        void setSentimentClass(int sentiment_score){
-            if(sentiment_score == 4){
-                this->sentiment_class="Positive";
-            }
-            else{
-                this->sentiment_class="Negative";
-            }
         }
 
         string getSentimentClass(){
