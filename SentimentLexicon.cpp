@@ -8,11 +8,14 @@
 using namespace std;
 
 
-class SentimentLexicon{
-    public: 
-        static unordered_map<string, int> loadAFINN(string fileName){
-            unordered_map<string, int> vocabulary;
-            ifstream file(fileName);
+class SentimentLexicon{ //this class contains all of the vocabulary needed for the
+    private:
+        unordered_map<string, int> AFINN_lexicon;
+        unordered_map<string, int> VADER_lexicon;
+
+    public:
+        void loadAFINN(){ //loading AFINN vocab text file
+            ifstream file("AFINNSentiment.txt");
             string line;
 
             while(getline(file, line)){
@@ -20,37 +23,38 @@ class SentimentLexicon{
                 string word;
                 int score;
 
-                if(iss >> word >> score){
-                    vocabulary[word] = score;
+                if(iss >> word >> score){ //adding each word and its score into unordered_map
+                    AFINN_lexicon[word] = score;
                 }
             }
 
             file.close();
-            return vocabulary;
         }
 
-        static unordered_map<string, int> loadVader(string fileName){
-            unordered_map<string, int> vocabulary;
-            ifstream file(fileName);
+        void loadVader(){ //loading VADER vocab text file
+            ifstream file("vader_lexicon.txt");
             string line;
 
             while(getline(file, line)){
                 istringstream iss(line);
                 string word;
                 int score;
-
-                if(iss >> word >> score){
-                    vocabulary[word] = score;
+                if(iss >> word >> score){ //adding each word and its score into unordered_map
+                    VADER_lexicon[word] = score;
                 }
-
-                string ignore;
-                
             }
 
             file.close();
-            return vocabulary;
         }
 
-        
 
+        double getAFINNSentiment(string word){ //getting sentiment for vocab word in AFINN file
+            double afinnScore = AFINN_lexicon.count(word) ? AFINN_lexicon[word] : 0;
+            return afinnScore;
+        }
+
+        double getVADERSentiment(string word){ //getting sentiment for vocab word in VADER file
+            double afinnScore = VADER_lexicon.count(word) ? VADER_lexicon[word] : 0;
+            return afinnScore;
+        }
 };

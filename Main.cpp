@@ -2,16 +2,46 @@
 #include <sstream>
 #include <fstream>
 #include <unordered_map>
-#include "Tweet.cpp"
-#include "Tokenizer.cpp"
-#include "SentimentClassifier.cpp"
-#include "SentimentLexicon.cpp"
+#include "SentimentAnalyzer.cpp"
 #include <unordered_set>
 
 using namespace std;
 
+void readTestSentiments(unordered_map<int, int>& sentimenttweets, string fileName){
+    ifstream file;
+    file.open(fileName);
+
+    string line="";
+    getline(file, line); //ignoring header line
+    line="";
+    while(getline(file, line)){
+        string date;
+        string query; 
+        string user;
+
+        int id;
+        string text; //holds text of tweet
+        int sentiment_score; //holds score recorded for the tweet
+
+        string tempString="";
+    
+        stringstream inputString(line);
+
+        //getting sentiment score
+        getline(inputString, tempString, ',');
+        sentiment_score = atoi(tempString.c_str()); //converting from string to int
+
+        //getting ID
+        getline(inputString, tempString);
+        id = atoi(tempString.c_str()); //converting from string to int
+
+        sentimenttweets[id] = sentiment_score;
+    }
+    
+    file.close();
+}
+
 void readUserFile(vector<Tweet*>& tweets, string fileName){
-    Tokenizer* tokenizer;
     ifstream file;
     file.open(fileName);
 
@@ -33,10 +63,6 @@ void readUserFile(vector<Tweet*>& tweets, string fileName){
     
         stringstream inputString(line);
 
-        //getting sentiment score
-        getline(inputString, tempString, ',');
-        sentiment_score = atoi(tempString.c_str()); //converting from string to int
-
         //getting ID
         getline(inputString, tempString, ',');
         id = atoi(tempString.c_str()); //converting from string to int
@@ -46,15 +72,10 @@ void readUserFile(vector<Tweet*>& tweets, string fileName){
         getline(inputString, query, ',');
         getline(inputString, user, ',');
         getline(inputString, text);
-
-        // Tokenize the tweet text using the Tokenizer class
-        const char* delimiters = " ,.!?\"';:"; //pointing to string with multiple characters/delimeters
         
-        vector<string> words = tokenizer->tokenize(text, delimiters); // Tokenize tweet text
 
-        Tweet* tweet = new Tweet(sentiment_score, id, date, query, user, text);
+        Tweet* tweet = new Tweet(id, date, query, user, text);
         tweets.push_back(tweet);
-
     }
     
     file.close();
@@ -62,42 +83,42 @@ void readUserFile(vector<Tweet*>& tweets, string fileName){
 
 int main(){
     vector<Tweet*> tweets;
-    vector<Tweet*> testTweets;
-    readUserFile(tweets, "TrainingDataset.csv");
+    unordered_map<int, int> sentimentTweets;
+    SentimentAnalyzer analyzer;
+    readUserFile(tweets, "TestDataset.csv");
+    readTestSentiments(sentimentTweets, "TestDatasetSentiment.csv");
 
-    unordered_map<string, int> vocabAFINN = SentimentLexicon::loadAFINN("AFINNSentiment.txt");
-    unordered_map<string, int> vocabVader = SentimentLexicon::loadVader("vader_lexicon.txt");
-    double accuracy = 0.0;
     double correct = 0.0;
     double total = tweets.size();
     ofstream myFile;
     myFile.open("Output.txt");
 
     for(int i=0; i<tweets.size(); i++){
-        int score = SentimentClassifier::analyzeTweetSentiment(tweets.at(i)->text, vocabAFINN, vocabVader);
-
+        double score = analyzer.analyzeTweetSentiment(tweets.at(i));
         Tweet* testtweet;
-        if(score >= 0){
-            testtweet = new Tweet(4, tweets.at(i)->id, tweets.at(i)->date, tweets.at(i)->query, tweets.at(i)->user, tweets.at(i)->text);
+
+        if(score >= 0){ //creating test tweet object
+            testtweet = new Tweet(tweets.at(i)->id, tweets.at(i)->date, tweets.at(i)->query, tweets.at(i)->user, tweets.at(i)->text);
+            testtweet->sentiment_score=4;
         }
-        else{
-            testtweet = new Tweet(0, tweets.at(i)->id, tweets.at(i)->date, tweets.at(i)->query, tweets.at(i)->user, tweets.at(i)->text);
+        else{ //creating test tweet object
+            testtweet = new Tweet(tweets.at(i)->id, tweets.at(i)->date, tweets.at(i)->query, tweets.at(i)->user, tweets.at(i)->text);
+            testtweet->sentiment_score=0;
         }
 
-        if(tweets.at(i)->sentiment_score == testtweet->sentiment_score){
+        auto it = sentimentTweets.find(tweets.at(i)->id);
+        if (it != sentimentTweets.end() && it->second == testtweet->sentiment_score){
             correct++;
-        }
-        else{
-
+        } 
+        else { // output to file if incorrect
             myFile << "Incorrect: " << tweets.at(i)->text << ", " << testtweet->sentiment_score << "\n";
         }
 
     }
 
     myFile.close();
-    cout << "Accuracy: " << correct/total << endl;
 
-
+    cout << "Accuracy: " << (correct/tweets.size())*100 << "%" << endl;
 
     return 0;
 }
