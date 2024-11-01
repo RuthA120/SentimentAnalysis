@@ -21,49 +21,88 @@ class SentimentAnalyzer{ //this class will be used to execute all functions need
 };
 
 
-double SentimentAnalyzer::analyzeTweetSentiment(Tweet* tweet){
+double SentimentAnalyzer::analyzeTweetSentiment(Tweet* tweet) {
     Tokenizer tokenizer;
-    const char* delimiters = " ,.!?\"';:";
+    const char* delimiters = " ,.!?\"';:-@/";
     vector<string> tokens = tokenizer.tokenize(tweet->getText(), delimiters);
 
     int totalScore = 0;
     double wordTotal = 0;
-    int uppercaseCount = 0;
-    int letterCount = 0;
+    bool isNegated = false;
+    bool isFrustration = false;
+    bool isSarcasm = false;
+    bool isWord = false;
 
-    for (string word : tokens) {
-        // Count uppercase letters in the original word
-        for (char c : word) {
-            if (isalpha(c)) {
-                letterCount++;
-                if (isupper(c)) {
-                    uppercaseCount++;
-                }
-            }
-        }
+    // Define and populate negators, frustration indicators, sarcasm indicators, and dissatisfaction terms
+    unordered_set<string> negators;
+    negators.insert("not");
+    negators.insert("no");
+    negators.insert("never");
+    negators.insert("nor");
+    negators.insert("none");
+    negators.insert("hardly");
+    negators.insert("neither");
+    negators.insert("nothing");
+    negators.insert("nobody");
 
-        // Convert word to lowercase for sentiment analysis
+    unordered_set<string> frustrationTerms;
+    frustrationTerms.insert("ugh");
+    frustrationTerms.insert("meh");
+    frustrationTerms.insert("wish");
+    frustrationTerms.insert("miss");
+    frustrationTerms.insert("need");
+    frustrationTerms.insert("want");
+    frustrationTerms.insert("don't");
+    frustrationTerms.insert("dont");
+    frustrationTerms.insert("won't");
+    frustrationTerms.insert("wont");
+
+    for (size_t i = 0; i < tokens.size(); ++i) {
+        string word = tokens[i];
         transform(word.begin(), word.end(), word.begin(), ::tolower);
 
+        // Check for negation
+        if (negators.count(word)) {
+            isNegated = true;
+            isWord = true;
+        }
+
+        // Check for frustration and dissatisfaction
+        if (frustrationTerms.count(word)) {
+            isFrustration = true;
+            isWord = true;
+        }
+
+        // Check for sentiment score in lexicon
         double afinnScore = lexicon->getAFINNSentiment(word);
-        if(afinnScore < 0 && word.size() >= 6){
-            afinnScore -= 2;
-        }
-
         double vaderScore = lexicon->getVADERSentiment(word);
-        if(vaderScore < 0 && word.size() >= 6){
-            vaderScore -= 2;
+
+        // Apply negation and sarcasm adjustments
+        if (isNegated && !isWord) {
+            afinnScore = -afinnScore * 1.5;
+            vaderScore = -vaderScore * 0.5;
+            isNegated = false;
+        }
+        // Long negative words and repeated characters emphasis
+        if (afinnScore < 0 && word.size() >= 7) {
+            afinnScore -= word.size() / 2.0;
+        }
+        if (vaderScore < 0 && word.size() >= 7) {
+            vaderScore -= word.size() / 2.0;
         }
 
+        // Adjust for frustration terms
+        if (isFrustration) {
+            afinnScore -= 3;
+            vaderScore -= 3;
+            isFrustration = false;
+        }
+
+        // Calculate total score with updated weights
         wordTotal++;
         totalScore += (afinnScore * 4) + (vaderScore * 2);
+        isWord = false;
     }
 
-    // Check uppercase letter proportion
-    double uppercaseProportion = (letterCount > 0) ? (double)uppercaseCount / letterCount : 0;
-    if (uppercaseProportion > 0.3) { // Deduct if >30% of letters are uppercase
-        totalScore -= 5; // Adjust this deduction value as needed
-    }
-
-    return (wordTotal > 0) ? totalScore / wordTotal : 0;
+    return totalScore / wordTotal;
 }
