@@ -1,4 +1,4 @@
-# Assignment 2: Answers
+# Project 3: Answers
 Names: Ruth Assefa, Tiffany Nguyen
 
 ## UML Diagram
