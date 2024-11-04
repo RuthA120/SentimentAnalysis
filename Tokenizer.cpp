@@ -6,7 +6,7 @@
 
 using namespace std;
 
-class Tokenizer{
+class Tokenizer{ //class is used to split up text into individual words
     public:
         vector<string> tokenize(string text, const char* delimiters) {
             vector<string> tokens; //holds tokens in vector
