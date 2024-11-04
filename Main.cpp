@@ -2,13 +2,14 @@
 #include <sstream>
 #include <fstream>
 #include <unordered_map>
+#include <iomanip>
 #include "SentimentAnalyzer.cpp"
 #include <unordered_set>
 
 using namespace std;
 
 void readTestSentiments(unordered_map<int, int>& sentimenttweets, string fileName){
-    ifstream file;
+    ifstream file; //used to open file
     file.open(fileName);
 
     string line="";
@@ -82,19 +83,26 @@ void readUserFile(vector<Tweet*>& tweets, string fileName){
 }
 
 int main(){
-    vector<Tweet*> tweets;
-    unordered_map<int, int> sentimentTweets;
-    SentimentAnalyzer analyzer;
-    readUserFile(tweets, "TestDataset.csv");
+    vector<Tweet*> tweets; //holds tweets that are going to be analyzed
+    unordered_map<int, int> sentimentTweets; //holds ID's and sentiment scores of test dataset
+
+    vector<Tweet*> incorrectTweets;
+    
+    SentimentAnalyzer* analyzer = new SentimentAnalyzer(); //used to access analyzer functions
+
+    readUserFile(tweets, "TestDataset.csv"); //reading files
     readTestSentiments(sentimentTweets, "TestDatasetSentiment.csv");
 
-    double correct = 0.0;
-    double total = tweets.size();
-    ofstream myFile;
-    myFile.open("Output.txt");
+    double correct = 0.0; //checking number of correct tweets
+    double total = tweets.size(); //number of total tweets]
+    ofstream classifierResult; //prints each tweet's given sentiment and id 
+    ofstream accuracy; //prints accuracy and compares ground truth and model sentiment score
+
+    classifierResult.open("ClassifierResults.txt");
+    accuracy.open("AccuracyFile.txt");
 
     for(int i=0; i<tweets.size(); i++){
-        double score = analyzer.analyzeTweetSentiment(tweets.at(i));
+        double score = analyzer->analyzeTweetSentiment(tweets.at(i));
         Tweet* testtweet;
 
         if(score >= 0){ //creating test tweet object
@@ -106,19 +114,28 @@ int main(){
             testtweet->sentiment_score=0;
         }
 
-        auto it = sentimentTweets.find(tweets.at(i)->id);
-        if (it != sentimentTweets.end() && it->second == testtweet->sentiment_score){
-            correct++;
-        } 
-        else { // output to file if incorrect
-            myFile << "Incorrect: " << tweets.at(i)->text << ", " << testtweet->sentiment_score << "\n";
-        }
+        classifierResult << testtweet->sentiment_score << ", " << testtweet->id << endl; //prints model sentiment score and tweet's id
 
+        auto it = sentimentTweets.find(tweets.at(i)->id);
+        if (it != sentimentTweets.end() && it->second == testtweet->sentiment_score){ //comparing with test vector to see if correct
+            correct++;
+        }
+        else{
+            incorrectTweets.push_back(testtweet);
+        } 
     }
 
-    myFile.close();
+    accuracy << fixed << setprecision(3) << (correct/tweets.size())*100 << endl; //printing accuracy into file
 
-    cout << "Accuracy: " << (correct/tweets.size())*100 << "%" << endl;
+    for(int i=0; i<incorrectTweets.size(); i++){ //printing all incorrect tweets into file
+        auto it = sentimentTweets.find(incorrectTweets.at(i)->id);
+        accuracy << incorrectTweets.at(i)->sentiment_score << ", " << it->second << ", " << incorrectTweets.at(i)->id << endl;
+    }
+
+    cout << "Accuracy: " << fixed << setprecision(3) << (correct/tweets.size())*100 << "%" << endl; //printing accuracy to terminal
+
+    accuracy.close(); //closing files
+    classifierResult.close();
 
     return 0;
 }

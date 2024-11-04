@@ -8,10 +8,10 @@
 using namespace std;
 
 
-class SentimentLexicon{ //this class contains all of the vocabulary needed for the
+class SentimentLexicon{ //this class contains all of the vocabulary needed for the ana
     private:
-        unordered_map<string, int> AFINN_lexicon;
-        unordered_map<string, int> VADER_lexicon;
+        unordered_map<string, int> AFINN_lexicon; //holds AFINN vocab words and the sentiments
+        unordered_map<string, int> VADER_lexicon; //holds VADER vocab words and the sentiments
 
     public:
         void loadAFINN(){ //loading AFINN vocab text file

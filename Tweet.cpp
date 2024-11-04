@@ -3,17 +3,16 @@
 using namespace std;
 
 class Tweet{
-    private:
     public:
-        string date;
-        string query; 
-        string user;
-        int id;
+        string date; //holds date of tweet
+        string query;  //holds query name
+        string user; //holds user of tweet
+        int id; //holds id of tweet
         string text; //holds text of tweet
         int sentiment_score; //holds score recorded for the tweet
-        string sentiment_class; 
+        string sentiment_class;  //determines if tweet is positive or negative
         
-        Tweet(int id, string date, string query, string user, string text){
+        Tweet(int id, string date, string query, string user, string text){ //this constructor is used to create objects from the test dataset
             this->date = date;
             this->query = query;
             this->id = id;
@@ -26,34 +25,18 @@ class Tweet{
             }
         }
 
-        Tweet(int id, int sentiment_score){
+        Tweet(int id, int sentiment_score){ //this constructor is used to create objects from the test dataset sentiment file
             this->id = id;
             this->sentiment_score=sentiment_score;
-            if(sentiment_score==4){
+            if(sentiment_score==4){ //assigning class based on score
                 this->sentiment_class="Positive";
             }
-            else{
+            else{ //assigning class based on score
                 this->sentiment_class="Negative";
             }
         }
 
-        void setTweet(string text){
-            this->text=text;
-        }
-
-        void setSentimentScore(int sentiment_score){
+        void setSentimentScore(int sentiment_score){ //setting score for tweet
             this->sentiment_score=sentiment_score;
-        }
-
-        int getSentimentScore(){
-            return sentiment_score;
-        }
-
-        string getSentimentClass(){
-            return sentiment_class;
-        }
-
-        string getText(){
-            return text;
         }
 };
