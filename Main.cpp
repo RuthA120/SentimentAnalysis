@@ -141,4 +141,22 @@ int main(){
     accuracy << fixed << setprecision(3) << (correct/tweets.size())*100 << endl; //printing accuracy into file
 
     for(int i=0; i<incorrectTweets.size(); i++){ //printing all incorrect tweets into file
-        auto it = sentimentTweets.find(incorrectTweets.at(i)-
+        auto it = sentimentTweets.find(incorrectTweets.at(i)->id);
+        accuracy << incorrectTweets.at(i)->sentiment_score << ", " << it->second << ", " << incorrectTweets.at(i)->id << endl;
+    }
+
+    cout << "Accuracy: " << fixed << setprecision(3) << (correct/tweets.size())*100 << "%" << endl; //printing accuracy to terminal
+
+    accuracy.close(); //closing files
+    classifierResult.close();
+
+    for (auto& tweet : tweets) {
+        delete tweet;
+    }
+    for (auto& incorrectTweet : incorrectTweets) {
+        delete incorrectTweet;
+    }
+    delete analyzer;
+
+    return 0;
+}
