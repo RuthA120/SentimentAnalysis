@@ -11,6 +11,10 @@ using namespace std;
 void readTestSentiments(unordered_map<int, int>& sentimenttweets, string fileName){
     ifstream file; //used to open file
     file.open(fileName);
+    if (!file.is_open()) {
+        cout << "Error opening file " << fileName << endl;
+        return;
+    }
 
     string line="";
     getline(file, line); //ignoring header line
@@ -45,6 +49,10 @@ void readTestSentiments(unordered_map<int, int>& sentimenttweets, string fileNam
 void readUserFile(vector<Tweet*>& tweets, string fileName){
     ifstream file;
     file.open(fileName);
+    if (!file.is_open()) {
+        cout << "Error opening file " << fileName << endl;
+        return;
+    }
 
     string line="";
     getline(file, line); //ignoring header line
@@ -101,6 +109,11 @@ int main(){
     classifierResult.open("ClassifierResults.txt");
     accuracy.open("AccuracyFile.txt");
 
+    if (!classifierResult.is_open() || !accuracy.is_open()) {
+        cout << "Error opening output files" << endl;
+        return 1;
+    }
+
     for(int i=0; i<tweets.size(); i++){
         double score = analyzer->analyzeTweetSentiment(tweets.at(i));
         Tweet* testtweet;
@@ -136,6 +149,14 @@ int main(){
 
     accuracy.close(); //closing files
     classifierResult.close();
+
+    for (auto& tweet : tweets) {
+        delete tweet;
+    }
+    for (auto& incorrectTweet : incorrectTweets) {
+        delete incorrectTweet;
+    }
+    delete analyzer;
 
     return 0;
 }
