@@ -11,13 +11,6 @@ This project is a simple sentiment analysis system written in C++ that classifie
 - Functions
   - `analyzeTweetSentiment`: Analyzes a tweet's sentiment by tokenizing the twee, applying sentiment scores, and handling specific cases like negation or frustration terms to adjust the final score.
 
-**Main**
-- Acts as the driver of the program, deals with file reading, sentiment analysis, and the accuracy calculation.
-- Functions
-  - `readTestSentiments`: Reads test sentiment scores from a file and stores them in a map.
-  - `readUserFile`: Reads tweets from a file, creating `Tweet` objects.
-  - `main`: Coordinates the analysis process, initializes tweets and sentiment analyzer, processes each tweet for sentiment, compares results with test data, and calculates accuracy.
-
 **Tweet**
 - Represents a tweet with relevant metadata, storing both the tweet's content and sentiment data.
 - Attributes
@@ -33,6 +26,23 @@ This project is a simple sentiment analysis system written in C++ that classifie
 
 **SentimentLexicon**
 - Manages vocabulary for sentiment analysis, using predefined lexicons.
-
+- Attributes
+  - `AFINN_lexicon`: Holds AFINN vocabulary words and the sentiments, sourced from their respective lexicons.
+  - `VADER_lexicon`: Holds VADER vocabulary words and the sentiments, sourced from their respective lexicons.
+- Functions
+  - `loadAFINN`: Loads the AFINN vocabulary text file.
+  - `loadVader`: Loads teh VADER vocabulary text file.
+  - `getAFINNSentiment`: Retrieves sentiment scores for vocabulary words in the AFINN file.
+  - `getVADERSentiment`: Retrieves sentiment scores for vocaulary words in the VADER file.
+  
 **Tokenizer**
+- Processes the text into tokens (words) to facilitate sentiment analysis.
+- Functions
+  - `tokenize`: Takes the text and delimiters, breaking the text into individual tokens (words) and returning them in a vector.
 
+**Main**
+- Acts as the driver of the program, deals with file reading, sentiment analysis, and the accuracy calculation.
+- Functions
+  - `readTestSentiments`: Reads test sentiment scores from a file and stores them in a map.
+  - `readUserFile`: Reads tweets from a file, creating `Tweet` objects.
+  - `main`: Coordinates the analysis process, initializes tweets and sentiment analyzer, processes each tweet for sentiment, compares results with test data, and calculates accuracy.
