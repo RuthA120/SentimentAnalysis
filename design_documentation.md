@@ -1,4 +1,5 @@
 # Design Documentation
+## Names: Ruth Assefa, Tiffany Nguyen
 ## Overview
 This project is a simple sentiment analysis system written in C++ that classifies tweets as either positive or negative. It uses custom data structures and follows specific design requirements, including implementing a custom string class (DSString) instead of using C++ standard library strings.
 
