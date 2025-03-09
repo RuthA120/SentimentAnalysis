@@ -1,4 +1,4 @@
-# Project3-SentimentAnalysis
+# Sentiment Analysis
 
 Have you ever read a tweet and thought, “Gee, what a positive outlook!” or
 “Wow, why so negative, friend?” Can computers make the same
